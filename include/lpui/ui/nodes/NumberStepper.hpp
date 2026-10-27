@@ -26,6 +26,7 @@ namespace lpui {
         T m_minValue{};
         T m_maxValue{};
         T m_step{};
+        bool m_enabled = true;
         std::function<void(T)> m_onChange;
 
         T clamp(T value) const;
@@ -46,6 +47,8 @@ namespace lpui {
 
         T getValue() const { return m_value; }
         void setValue(T value) { setValueInternal(value, true); }
+        void setEnabled(bool enabled);
+        bool isEnabled() const { return m_enabled; }
     };
 
     extern template class NumberStepper<int32_t>;

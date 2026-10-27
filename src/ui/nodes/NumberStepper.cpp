@@ -28,8 +28,17 @@ namespace lpui {
 
     template <typename T>
     void NumberStepper<T>::updateArrowButtons() {
-        setButtonEnabled(m_leftBtn, m_value > m_minValue);
-        setButtonEnabled(m_rightBtn, m_value < m_maxValue);
+        setButtonEnabled(m_leftBtn, m_enabled && m_value > m_minValue);
+        setButtonEnabled(m_rightBtn, m_enabled && m_value < m_maxValue);
+    }
+
+    template <typename T>
+    void NumberStepper<T>::setEnabled(bool enabled) {
+        m_enabled = enabled;
+        if (!enabled)
+            m_input->defocus();
+        m_input->setEnabled(enabled);
+        updateArrowButtons();
     }
 
     template <typename T>
@@ -54,6 +63,7 @@ namespace lpui {
 
     template <typename T>
     void NumberStepper<T>::textChanged(CCTextInputNode* node) {
+        if (!m_enabled) return;
         auto parsed = numFromString<T>(node->getString());
         if (parsed.isOk())
             setValueInternal(parsed.unwrap(), false);
@@ -72,6 +82,7 @@ namespace lpui {
 
     template <typename T>
     void NumberStepper<T>::onArrow(CCObject* sender) {
+        if (!m_enabled) return;
         int dir = sender->getTag();
         if constexpr (std::is_integral_v<T>) {
             auto next = static_cast<int64_t>(m_value) + dir * static_cast<int64_t>(m_step);
