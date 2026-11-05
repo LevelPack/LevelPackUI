@@ -8,7 +8,7 @@ namespace lpui {
         async::TaskHolder<file::PickResult>& holder,
         file::PickMode mode,
         file::FilePickOptions options,
-        std::function<void(std::filesystem::path const&)> onPicked
+        std::function<void(asp::fs::Path const&)> onPicked
     ) {
         holder.spawn(file::pick(mode, std::move(options)), [onPicked = std::move(onPicked)](file::PickResult result) {
             if (result.isErr()) {

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(LevelPackUI VERSION 1.0.0)
+project(LevelPackUI VERSION 1.0.1)
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
     src/*.cpp
