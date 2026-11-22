@@ -69,21 +69,16 @@ namespace lpui {
     }
 
     template <typename T>
-    void NumberSlider<T>::textChanged(CCTextInputNode* node) {
-        auto parsed = numFromString<T>(node->getString());
+    void NumberSlider<T>::onTextChanged(std::string const& text) {
+        auto parsed = numFromString<T>(text);
         if (parsed.isOk())
             setValueInternal(parsed.unwrap(), false, true);
     }
 
     template <typename T>
-    void NumberSlider<T>::textInputClosed(CCTextInputNode*) {
-        m_input->setString(toString(m_value));
-    }
-
-    template <typename T>
-    void NumberSlider<T>::enterPressed(CCTextInputNode*) {
-        m_input->defocus();
-        m_input->setString(toString(m_value));
+    void NumberSlider<T>::onInputFocus(TextInput::FocusState state) {
+        if (state == TextInput::FocusState::Unfocused)
+            m_input->setString(toString(m_value));
     }
 
     template <typename T>
@@ -119,7 +114,9 @@ namespace lpui {
         m_input->setPosition({width * .5f, 45.f});
         m_input->setCommonFilter(std::is_floating_point_v<T> ? CommonFilter::Float : std::is_signed_v<T> ? CommonFilter::Int : CommonFilter::Uint);
         m_input->setString(toString(m_value));
-        m_input->setDelegate(this);
+        m_input->setCallback([this](std::string const& text) { onTextChanged(text); });
+        m_input->setFocusCallback([this](TextInput::FocusState state) { onInputFocus(state); });
+        m_input->setEnterCallback([this](std::string const&) { m_input->unfocus(); });
         this->addChild(m_input);
 
         m_slider = Slider::create(this, menu_selector(NumberSlider::onSlider), options.sliderScale);

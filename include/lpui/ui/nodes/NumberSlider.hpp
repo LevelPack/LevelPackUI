@@ -7,7 +7,7 @@
 
 namespace lpui {
     template <typename T>
-    class NumberSlider : public cocos2d::CCMenu, public TextInputDelegate {
+    class NumberSlider : public cocos2d::CCMenu {
         static_assert(std::is_same_v<T, int32_t> || std::is_same_v<T, uint32_t> || std::is_same_v<T, float>);
 
     public:
@@ -32,9 +32,8 @@ namespace lpui {
         T fromRatio(float ratio) const;
         void setValueInternal(T newValue, bool updateInput, bool updateSlider);
 
-        void textChanged(CCTextInputNode* node) override;
-        void textInputClosed(CCTextInputNode*) override;
-        void enterPressed(CCTextInputNode*) override;
+        void onTextChanged(std::string const& text);
+        void onInputFocus(geode::TextInput::FocusState state);
 
         void onSlider(cocos2d::CCObject*);
 

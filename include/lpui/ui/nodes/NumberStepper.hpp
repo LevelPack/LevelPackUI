@@ -7,7 +7,7 @@
 
 namespace lpui {
     template <typename T>
-    class NumberStepper : public cocos2d::CCMenu, public TextInputDelegate {
+    class NumberStepper : public cocos2d::CCMenu {
         static_assert(std::is_same_v<T, int32_t> || std::is_same_v<T, uint32_t> || std::is_same_v<T, float>);
 
     public:
@@ -26,7 +26,6 @@ namespace lpui {
         T m_minValue{};
         T m_maxValue{};
         T m_step{};
-        bool m_enabled = true;
         std::function<void(T)> m_onChange;
 
         T clamp(T value) const;
@@ -34,9 +33,8 @@ namespace lpui {
         void updateArrowButtons();
         void setValueInternal(T newValue, bool updateInputText);
 
-        void textChanged(CCTextInputNode* node) override;
-        void textInputClosed(CCTextInputNode*) override;
-        void enterPressed(CCTextInputNode*) override;
+        void onTextChanged(std::string const& text);
+        void onInputFocus(geode::TextInput::FocusState state);
 
         void onArrow(cocos2d::CCObject* sender);
 
@@ -47,8 +45,7 @@ namespace lpui {
 
         T getValue() const { return m_value; }
         void setValue(T value) { setValueInternal(value, true); }
-        void setEnabled(bool enabled);
-        bool isEnabled() const { return m_enabled; }
+        void setEnabled(bool enabled) override;
     };
 
     extern template class NumberStepper<int32_t>;

@@ -28,15 +28,13 @@ namespace lpui {
 
     template <typename T>
     void NumberStepper<T>::updateArrowButtons() {
-        setButtonEnabled(m_leftBtn, m_enabled && m_value > m_minValue);
-        setButtonEnabled(m_rightBtn, m_enabled && m_value < m_maxValue);
+        setButtonEnabled(m_leftBtn, isEnabled() && m_value > m_minValue);
+        setButtonEnabled(m_rightBtn, isEnabled() && m_value < m_maxValue);
     }
 
     template <typename T>
     void NumberStepper<T>::setEnabled(bool enabled) {
-        m_enabled = enabled;
-        if (!enabled)
-            m_input->defocus();
+        CCMenu::setEnabled(enabled);
         m_input->setEnabled(enabled);
         updateArrowButtons();
     }
@@ -62,27 +60,22 @@ namespace lpui {
     }
 
     template <typename T>
-    void NumberStepper<T>::textChanged(CCTextInputNode* node) {
-        if (!m_enabled) return;
-        auto parsed = numFromString<T>(node->getString());
+    void NumberStepper<T>::onTextChanged(std::string const& text) {
+        if (!isEnabled()) return;
+        auto parsed = numFromString<T>(text);
         if (parsed.isOk())
             setValueInternal(parsed.unwrap(), false);
     }
 
     template <typename T>
-    void NumberStepper<T>::textInputClosed(CCTextInputNode*) {
-        m_input->setString(toString(m_value));
-    }
-
-    template <typename T>
-    void NumberStepper<T>::enterPressed(CCTextInputNode*) {
-        m_input->defocus();
-        m_input->setString(toString(m_value));
+    void NumberStepper<T>::onInputFocus(TextInput::FocusState state) {
+        if (state == TextInput::FocusState::Unfocused)
+            m_input->setString(toString(m_value));
     }
 
     template <typename T>
     void NumberStepper<T>::onArrow(CCObject* sender) {
-        if (!m_enabled) return;
+        if (!isEnabled()) return;
         int dir = sender->getTag();
         if constexpr (std::is_integral_v<T>) {
             auto next = static_cast<int64_t>(m_value) + dir * static_cast<int64_t>(m_step);
@@ -136,7 +129,9 @@ namespace lpui {
         m_input->setPosition({width * .5f, 15.f});
         m_input->setCommonFilter(std::is_floating_point_v<T> ? CommonFilter::Float : std::is_signed_v<T> ? CommonFilter::Int : CommonFilter::Uint);
         m_input->setString(toString(m_value));
-        m_input->setDelegate(this);
+        m_input->setCallback([this](std::string const& text) { onTextChanged(text); });
+        m_input->setFocusCallback([this](TextInput::FocusState state) { onInputFocus(state); });
+        m_input->setEnterCallback([this](std::string const&) { m_input->unfocus(); });
         this->addChild(m_input);
 
         updateArrowButtons();

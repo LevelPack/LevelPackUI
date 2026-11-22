@@ -47,6 +47,7 @@ Choose `width > 44` to leave positive space for the text input.
 |------------------------|-------------|
 | `T getValue() const`   | returns the current value |
 | `void setValue(T value)` | sets the value (clamped), updates the input and the arrows, calls `onChange` if the value changed |
+| `void setEnabled(bool enabled)` | overrides `CCMenu::setEnabled`: also disables the text input and dims both arrows. Read the state with the inherited `CCMenu::isEnabled()` |
 
 ```cpp
 auto stepper = lpui::NumberStepper<int32_t>::create(1, 1, 10, {
